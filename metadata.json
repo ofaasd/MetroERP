@@ -1,0 +1,6 @@
+{
+  "name": "MetroERP - Job Order & Inventory Tracking",
+  "description": "Sistem ERP berestetika Metro UI untuk pelacakan Job Order real-time, manajemen inventaris, dan dashboard pelaporan harian tim otomatis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
