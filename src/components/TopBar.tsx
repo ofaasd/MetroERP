@@ -19,6 +19,8 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenScanner }) => {
   const { 
     currentTime, 
     activeTab, 
+    productionSubTab,
+    masterSubTab,
     selectedJobId, 
     jobOrders, 
     selectedSkuId, 
@@ -55,6 +57,39 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenScanner }) => {
           title: 'Workstation & Performa Tim Harian',
           path: '100 • M200805 • Monitoring Lini Produksi > Status Mesin & Operator'
         };
+      case 'master-data': {
+        const subLabels: Record<string, { title: string; category: string }> = {
+          items: { title: 'Master Items (Barang & Material)', category: 'Master Primer' },
+          uom: { title: 'Master UOM (Unit of Measure)', category: 'Master Primer' },
+          warehouse: { title: 'Master Warehouse (Gudang Fisik)', category: 'Master Fasilitas' },
+          location: { title: 'Master Location (Bin & Staging MES)', category: 'Master Fasilitas' },
+          workcenter: { title: 'Master Work Center (Pusat Kerja MES)', category: 'Master Manufaktur' },
+          resources: { title: 'Master Resources (Mesin & Operator)', category: 'Master Manufaktur' },
+          customer: { title: 'Master Customer (Pelanggan)', category: 'Master Rekanan' },
+          vendors: { title: 'Master Vendors (Pemasok Bahan)', category: 'Master Rekanan' },
+          rel_item_warehouse: { title: 'ItemsWarehouse (Item ↔ Warehouse)', category: 'Master Relations' },
+          rel_item_uom: { title: 'ItemUOM (Item ↔ Daftar Satuan)', category: 'Master Relations' },
+          rel_wc_resource: { title: 'WorkCenterResource (WC ↔ Resource)', category: 'Master Relations' },
+          rel_item_vendor: { title: 'ItemVendor (Item ↔ Vendor Pemasok)', category: 'Master Relations' },
+        };
+        const current = subLabels[masterSubTab] || { title: 'Master Data Management', category: 'Master Data' };
+        return {
+          title: current.title,
+          path: `100 • M200805 • ${current.category} > ${current.title} > Split Editor`,
+        };
+      }
+      case 'production': {
+        const prodLabels: Record<string, { title: string; subtitle: string }> = {
+          bom: { title: 'Engineering Board & BOM (Bill of Materials)', subtitle: 'Struktur Desain Produk & Routing' },
+          jobs: { title: 'Job Orders / SPK (Surat Perintah Kerja)', subtitle: 'Pelacakan SPK & Perintah Kerja Produksi' },
+          operations: { title: 'Job Operations (Lantai Pabrik MES)', subtitle: 'Eksekusi Operasi Mesin & Workstation' },
+        };
+        const current = prodLabels[productionSubTab] || { title: 'Engineering & Production', subtitle: 'Manufaktur & MES' };
+        return {
+          title: current.title,
+          path: `100 • M200805 • Engineering & Production > ${current.title} > Split Record & Form Editor`,
+        };
+      }
       case 'report':
         return {
           title: 'Laporan Tutup Harian Otomatis',

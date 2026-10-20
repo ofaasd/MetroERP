@@ -7,6 +7,8 @@ import { InventoryMasterDetail } from './components/InventoryMasterDetail';
 import { ExecutiveHub } from './components/ExecutiveHub';
 import { TeamPerformance } from './components/TeamPerformance';
 import { DailyReportView } from './components/DailyReportView';
+import { MasterDataManager } from './components/MasterDataManager';
+import { EngineeringProductionManager } from './components/EngineeringProductionManager';
 import { NewJobOrderModal } from './components/NewJobOrderModal';
 import { StockActionModal } from './components/StockActionModal';
 import { BarcodeScannerModal } from './components/BarcodeScannerModal';
@@ -77,6 +79,14 @@ function MainAppContent() {
 
           {activeTab === 'team' && (
             <TeamPerformance />
+          )}
+
+          {activeTab === 'master-data' && (
+            <MasterDataManager />
+          )}
+
+          {activeTab === 'production' && (
+            <EngineeringProductionManager />
           )}
 
           {activeTab === 'report' && (
