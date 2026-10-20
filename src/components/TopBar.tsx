@@ -21,6 +21,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenScanner }) => {
     activeTab, 
     productionSubTab,
     masterSubTab,
+    inventorySubTab,
     selectedJobId, 
     jobOrders, 
     selectedSkuId, 
@@ -47,11 +48,30 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenScanner }) => {
           title: selectedJob ? `${selectedJob.orderNumber} - ${selectedJob.productName}` : 'Pelacakan Job Order (SPK)',
           path: `100 • M200805 • Divisi Fabrikasi & Perakitan > Pelacakan SPK > ${selectedJob ? selectedJob.orderNumber : 'Daftar'}`
         };
-      case 'inventory':
-        return {
-          title: selectedItem ? `${selectedItem.sku} - ${selectedItem.name}` : 'Manajemen Inventaris & Gudang',
-          path: `100 • M200805 • Logistik & Pergudangan > Master Katalog SKU > ${selectedItem ? selectedItem.sku : 'Daftar'}`
+      case 'inventory': {
+        const invLabels: Record<string, { title: string; subtitle: string }> = {
+          'material-engine': {
+            title: 'Material Transaction Engine (Ledger Mutasi Fisik)',
+            subtitle: 'Pemrosesan Transaksi Mutasi & Rekonsiliasi Gudang',
+          },
+          'misc-issue': {
+            title: 'Miscellaneous Issue (Pengeluaran Barang Non-PO)',
+            subtitle: 'Pembebanan Material R&D, Maintenance MRO, & Scrap',
+          },
+          'misc-receipt': {
+            title: 'Miscellaneous Receipt (Penerimaan Barang Non-PO)',
+            subtitle: 'Penerimaan Retur Sisa Lini, Sampel Vendor, & Saldo Awal',
+          },
         };
+        const current = invLabels[inventorySubTab] || {
+          title: 'Basic Inventory Control',
+          subtitle: 'Pengendalian Inventaris Pabrik',
+        };
+        return {
+          title: current.title,
+          path: `100 • M200805 • Basic Inventory Control > ${current.title} > Split Record & Form Editor`,
+        };
+      }
       case 'team':
         return {
           title: 'Workstation & Performa Tim Harian',

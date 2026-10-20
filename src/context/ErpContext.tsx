@@ -55,6 +55,17 @@ import {
   INITIAL_PRODUCTION_JOBS,
   INITIAL_JOB_OPERATIONS
 } from '../data/mockProductionData';
+import {
+  InventorySubTab,
+  MaterialTransaction,
+  MiscellaneousIssue,
+  MiscellaneousReceipt
+} from '../types/inventoryControl';
+import {
+  INITIAL_MATERIAL_TRANSACTIONS,
+  INITIAL_MISC_ISSUES,
+  INITIAL_MISC_RECEIPTS
+} from '../data/mockInventoryControlData';
 
 interface ToastState {
   type: 'success' | 'warning' | 'error' | 'info';
@@ -73,6 +84,19 @@ interface ErpContextType {
   setProductionSubTab: (tab: ProductionModuleTab) => void;
   masterSubTab: MasterModuleTab;
   setMasterSubTab: (tab: MasterModuleTab) => void;
+  inventorySubTab: InventorySubTab;
+  setInventorySubTab: (tab: InventorySubTab) => void;
+
+  // Basic Inventory Control Collections & Actions
+  materialTransactions: MaterialTransaction[];
+  miscIssues: MiscellaneousIssue[];
+  miscReceipts: MiscellaneousReceipt[];
+  saveMaterialTransaction: (txn: MaterialTransaction, isNew: boolean) => void;
+  deleteMaterialTransaction: (id: string) => void;
+  saveMiscIssue: (issue: MiscellaneousIssue, isNew: boolean) => void;
+  deleteMiscIssue: (id: string) => void;
+  saveMiscReceipt: (receipt: MiscellaneousReceipt, isNew: boolean) => void;
+  deleteMiscReceipt: (id: string) => void;
 
   // Engineering & Production Collections & Actions
   bomList: MasterBOM[];
@@ -180,6 +204,9 @@ const STORAGE_KEYS = {
   BOM_LIST: 'metroerp_bom_list_v1',
   PROD_JOBS: 'metroerp_prod_jobs_v1',
   JOB_OPS: 'metroerp_job_ops_v1',
+  MATERIAL_TXNS: 'metroerp_mat_txns_v1',
+  MISC_ISSUES: 'metroerp_misc_issues_v1',
+  MISC_RECEIPTS: 'metroerp_misc_receipts_v1',
 };
 
 export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -206,6 +233,35 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeTab, setActiveTab] = useState<'hub' | 'jobs' | 'production' | 'inventory' | 'team' | 'report' | 'master-data'>('jobs');
   const [productionSubTab, setProductionSubTab] = useState<ProductionModuleTab>('bom');
   const [masterSubTab, setMasterSubTab] = useState<MasterModuleTab>('items');
+  const [inventorySubTab, setInventorySubTab] = useState<InventorySubTab>('material-engine');
+
+  // Basic Inventory Control States
+  const [materialTransactions, setMaterialTransactions] = useState<MaterialTransaction[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.MATERIAL_TXNS);
+    return saved ? JSON.parse(saved) : INITIAL_MATERIAL_TRANSACTIONS;
+  });
+
+  const [miscIssues, setMiscIssues] = useState<MiscellaneousIssue[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.MISC_ISSUES);
+    return saved ? JSON.parse(saved) : INITIAL_MISC_ISSUES;
+  });
+
+  const [miscReceipts, setMiscReceipts] = useState<MiscellaneousReceipt[]>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.MISC_RECEIPTS);
+    return saved ? JSON.parse(saved) : INITIAL_MISC_RECEIPTS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.MATERIAL_TXNS, JSON.stringify(materialTransactions));
+  }, [materialTransactions]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.MISC_ISSUES, JSON.stringify(miscIssues));
+  }, [miscIssues]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.MISC_RECEIPTS, JSON.stringify(miscReceipts));
+  }, [miscReceipts]);
 
   // Engineering & Production States
   const [bomList, setBomList] = useState<MasterBOM[]>(() => {
@@ -1097,6 +1153,169 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast('success', 'MES Operasi Tuntas', `Operasi tuntas dengan Good: ${goodQty}, Scrap: ${scrapQty}.`);
   };
 
+  // Basic Inventory Control CRUD Actions
+  const saveMaterialTransaction = (txn: MaterialTransaction, isNew: boolean) => {
+    if (isNew) {
+      setMaterialTransactions((prev) => [txn, ...prev]);
+      if (txn.direction === 'OUT') {
+        setInventory((prev) =>
+          prev.map((item) =>
+            item.sku === txn.itemCode
+              ? { ...item, stock: Math.max(0, item.stock - txn.qty), lastUpdated: txn.timestamp }
+              : item
+          )
+        );
+      } else if (txn.direction === 'IN') {
+        setInventory((prev) =>
+          prev.map((item) =>
+            item.sku === txn.itemCode
+              ? { ...item, stock: item.stock + txn.qty, lastUpdated: txn.timestamp }
+              : item
+          )
+        );
+      }
+      showToast('success', 'Transaksi Diposting', `Nomor Transaksi ${txn.transactionNumber} sukses diposting ke ledger inventaris.`);
+    } else {
+      setMaterialTransactions((prev) => prev.map((t) => (t.id === txn.id ? txn : t)));
+      showToast('success', 'Transaksi Diperbarui', `Record transaksi ${txn.transactionNumber} berhasil diperbarui.`);
+    }
+  };
+
+  const deleteMaterialTransaction = (id: string) => {
+    const found = materialTransactions.find((t) => t.id === id);
+    setMaterialTransactions((prev) => prev.filter((t) => t.id !== id));
+    showToast('info', 'Transaksi Dihapus', `Transaksi ${found?.transactionNumber || id} telah dihapus.`);
+  };
+
+  const saveMiscIssue = (issue: MiscellaneousIssue, isNew: boolean) => {
+    if (isNew) {
+      setMiscIssues((prev) => [issue, ...prev]);
+      // Deduct stock from inventory
+      setInventory((prev) =>
+        prev.map((item) =>
+          item.sku === issue.itemCode
+            ? { ...item, stock: Math.max(0, item.stock - issue.qty), lastUpdated: issue.issueDate }
+            : item
+        )
+      );
+      // Register stock movement
+      const newMov: StockMovement = {
+        id: `mov-${Date.now()}`,
+        timestamp: issue.issueDate,
+        sku: issue.itemCode,
+        itemName: issue.itemName,
+        type: 'OUT',
+        qty: issue.qty,
+        reference: issue.issueNumber,
+        operator: issue.requester,
+        notes: `Misc Issue (${issue.reasonLabel}) - ${issue.notes}`
+      };
+      setMovements((prev) => [newMov, ...prev]);
+      // Automatically post to Material Transaction Engine
+      const newTxn: MaterialTransaction = {
+        id: `txn-${Date.now()}`,
+        transactionNumber: `TXN-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        timestamp: issue.issueDate,
+        type: 'MISC_ISSUE',
+        typeLabel: 'Miscellaneous Issue',
+        itemCode: issue.itemCode,
+        itemName: issue.itemName,
+        category: 'RAW_MATERIAL',
+        warehouseCode: issue.warehouseCode,
+        warehouseName: issue.warehouseName,
+        locationCode: issue.locationCode,
+        direction: 'OUT',
+        qty: issue.qty,
+        uom: issue.uom,
+        unitCost: issue.unitCost,
+        totalCost: issue.totalAmount,
+        reasonCode: issue.reasonCode,
+        referenceDoc: issue.issueNumber,
+        operator: issue.requester,
+        department: issue.department,
+        costCenter: issue.costCenter,
+        status: 'POSTED',
+        notes: issue.notes,
+      };
+      setMaterialTransactions((prev) => [newTxn, ...prev]);
+      showToast('success', 'Pengeluaran Non-PO Terposting', `Miscellaneous Issue ${issue.issueNumber} sebesar ${issue.qty} ${issue.uom} berhasil dikeluarkan dari gudang.`);
+    } else {
+      setMiscIssues((prev) => prev.map((i) => (i.id === issue.id ? issue : i)));
+      showToast('success', 'Issue Diperbarui', `Dokumen issue ${issue.issueNumber} telah diperbarui.`);
+    }
+  };
+
+  const deleteMiscIssue = (id: string) => {
+    const found = miscIssues.find((i) => i.id === id);
+    setMiscIssues((prev) => prev.filter((i) => i.id !== id));
+    showToast('info', 'Issue Dihapus', `Dokumen issue ${found?.issueNumber || id} telah dihapus.`);
+  };
+
+  const saveMiscReceipt = (receipt: MiscellaneousReceipt, isNew: boolean) => {
+    if (isNew) {
+      setMiscReceipts((prev) => [receipt, ...prev]);
+      // Add stock to inventory
+      setInventory((prev) =>
+        prev.map((item) =>
+          item.sku === receipt.itemCode
+            ? { ...item, stock: item.stock + receipt.qty, lastUpdated: receipt.receiptDate }
+            : item
+        )
+      );
+      // Register stock movement
+      const newMov: StockMovement = {
+        id: `mov-${Date.now()}`,
+        timestamp: receipt.receiptDate,
+        sku: receipt.itemCode,
+        itemName: receipt.itemName,
+        type: 'IN',
+        qty: receipt.qty,
+        reference: receipt.receiptNumber,
+        operator: receipt.receivedBy,
+        notes: `Misc Receipt (${receipt.reasonLabel}) - ${receipt.notes}`
+      };
+      setMovements((prev) => [newMov, ...prev]);
+      // Automatically post to Material Transaction Engine
+      const newTxn: MaterialTransaction = {
+        id: `txn-${Date.now()}`,
+        transactionNumber: `TXN-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        timestamp: receipt.receiptDate,
+        type: 'MISC_RECEIPT',
+        typeLabel: 'Miscellaneous Receipt',
+        itemCode: receipt.itemCode,
+        itemName: receipt.itemName,
+        category: 'RAW_MATERIAL',
+        warehouseCode: receipt.warehouseCode,
+        warehouseName: receipt.warehouseName,
+        locationCode: receipt.locationCode,
+        direction: 'IN',
+        qty: receipt.qty,
+        uom: receipt.uom,
+        unitCost: receipt.unitCost,
+        totalCost: receipt.totalAmount,
+        reasonCode: receipt.reasonCode,
+        referenceDoc: receipt.receiptNumber,
+        operator: receipt.receivedBy,
+        department: 'Gudang Logistik',
+        costCenter: receipt.offsetAccount,
+        status: 'POSTED',
+        notes: receipt.notes,
+        lotBatchNo: receipt.lotBatchNo,
+      };
+      setMaterialTransactions((prev) => [newTxn, ...prev]);
+      showToast('success', 'Penerimaan Non-PO Terposting', `Miscellaneous Receipt ${receipt.receiptNumber} sebesar ${receipt.qty} ${receipt.uom} berhasil dimasukkan ke stok gudang.`);
+    } else {
+      setMiscReceipts((prev) => prev.map((r) => (r.id === receipt.id ? receipt : r)));
+      showToast('success', 'Receipt Diperbarui', `Dokumen penerimaan ${receipt.receiptNumber} telah diperbarui.`);
+    }
+  };
+
+  const deleteMiscReceipt = (id: string) => {
+    const found = miscReceipts.find((r) => r.id === id);
+    setMiscReceipts((prev) => prev.filter((r) => r.id !== id));
+    showToast('info', 'Receipt Dihapus', `Dokumen penerimaan ${found?.receiptNumber || id} telah dihapus.`);
+  };
+
   const resetToSampleData = () => {
     localStorage.removeItem(STORAGE_KEYS.JOBS);
     localStorage.removeItem(STORAGE_KEYS.INVENTORY);
@@ -1117,6 +1336,9 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.removeItem(STORAGE_KEYS.BOM_LIST);
     localStorage.removeItem(STORAGE_KEYS.PROD_JOBS);
     localStorage.removeItem(STORAGE_KEYS.JOB_OPS);
+    localStorage.removeItem(STORAGE_KEYS.MATERIAL_TXNS);
+    localStorage.removeItem(STORAGE_KEYS.MISC_ISSUES);
+    localStorage.removeItem(STORAGE_KEYS.MISC_RECEIPTS);
 
     setJobOrders(INITIAL_JOB_ORDERS);
     setInventory(INITIAL_INVENTORY);
@@ -1137,8 +1359,11 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setBomList(INITIAL_BOM_LIST);
     setProductionJobs(INITIAL_PRODUCTION_JOBS);
     setJobOperations(INITIAL_JOB_OPERATIONS);
+    setMaterialTransactions(INITIAL_MATERIAL_TRANSACTIONS);
+    setMiscIssues(INITIAL_MISC_ISSUES);
+    setMiscReceipts(INITIAL_MISC_RECEIPTS);
 
-    showToast('info', 'Data Direset', 'Semua data master, relasi, & modul produksi dikembalikan ke konfigurasi awal.');
+    showToast('info', 'Data Direset', 'Semua data master, relasi, modul produksi, & inventaris dikembalikan ke konfigurasi awal.');
   };
 
   return (
@@ -1154,6 +1379,19 @@ export const ErpProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setProductionSubTab,
         masterSubTab,
         setMasterSubTab,
+        inventorySubTab,
+        setInventorySubTab,
+
+        // Basic Inventory Control
+        materialTransactions,
+        miscIssues,
+        miscReceipts,
+        saveMaterialTransaction,
+        deleteMaterialTransaction,
+        saveMiscIssue,
+        deleteMiscIssue,
+        saveMiscReceipt,
+        deleteMiscReceipt,
 
         // Engineering & Production
         bomList,

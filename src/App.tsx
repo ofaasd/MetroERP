@@ -9,6 +9,7 @@ import { TeamPerformance } from './components/TeamPerformance';
 import { DailyReportView } from './components/DailyReportView';
 import { MasterDataManager } from './components/MasterDataManager';
 import { EngineeringProductionManager } from './components/EngineeringProductionManager';
+import { BasicInventoryControl } from './components/BasicInventoryControl';
 import { NewJobOrderModal } from './components/NewJobOrderModal';
 import { StockActionModal } from './components/StockActionModal';
 import { BarcodeScannerModal } from './components/BarcodeScannerModal';
@@ -62,11 +63,7 @@ function MainAppContent() {
           )}
 
           {activeTab === 'inventory' && (
-            <InventoryMasterDetail
-              onOpenRestock={handleOpenRestock}
-              onOpenStockOut={handleOpenStockOut}
-              onOpenNewItem={handleOpenNewItem}
-            />
+            <BasicInventoryControl />
           )}
 
           {activeTab === 'hub' && (

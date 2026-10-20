@@ -31,7 +31,9 @@ import {
   Truck,
   GitMerge,
   Link2,
-  Boxes as BoxesIcon
+  Boxes as BoxesIcon,
+  ArrowUpRight,
+  ArrowDownRight
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -63,7 +65,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenNewJob, onOpenRestock })
     relItemWarehouses,
     relItemUoms,
     relWcResources,
-    relItemVendors
+    relItemVendors,
+    inventorySubTab,
+    setInventorySubTab,
+    materialTransactions,
+    miscIssues,
+    miscReceipts
   } = useErp();
   
   const [isProdOpen, setIsProdOpen] = useState(true);
@@ -575,16 +582,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenNewJob, onOpenRestock })
           )}
         </div>
 
-        {/* Section: Manajemen Inventaris (Expandable Folder) */}
+        {/* Section: Basic Inventory Control (Expandable Folder with 3 Submenus) */}
         <div>
           <button
-            onClick={() => setIsInventoryOpen(!isInventoryOpen)}
-            className="w-full flex items-center justify-between px-2.5 py-1.5 text-neutral-400 hover:text-neutral-200 hover:bg-[#1e293b]/50 rounded-sm cursor-pointer transition-colors"
-            title="Manajemen Inventaris"
+            onClick={() => {
+              if (isCollapsed) {
+                setActiveTab('inventory');
+              } else {
+                setIsInventoryOpen(!isInventoryOpen);
+              }
+            }}
+            className={`w-full flex items-center justify-between px-2.5 py-1.5 text-neutral-400 hover:text-neutral-200 hover:bg-[#1e293b]/50 rounded-sm cursor-pointer transition-colors ${
+              activeTab === 'inventory' && isCollapsed
+                ? 'bg-[#243729] text-[#a7f3d0] font-semibold border-l-2 border-emerald-400'
+                : ''
+            }`}
+            title="Basic Inventory Control"
           >
             <div className="flex items-center gap-2.5 min-w-0">
               {isInventoryOpen ? <FolderOpen className="w-4 h-4 text-emerald-400 shrink-0" /> : <Folder className="w-4 h-4 text-emerald-400 shrink-0" />}
-              {!isCollapsed && <span className="font-semibold text-neutral-200 truncate">Gudang & Inventaris</span>}
+              {!isCollapsed && (
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="font-semibold text-neutral-200 truncate">Basic Inventory Control</span>
+                  <span className="bg-emerald-950 text-emerald-400 text-[9px] font-mono px-1 rounded-xs border border-emerald-800">3 Engine</span>
+                </div>
+              )}
             </div>
             {!isCollapsed && (
               <span className="text-neutral-500">
@@ -595,36 +617,68 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenNewJob, onOpenRestock })
 
           {isInventoryOpen && (
             <div className={`mt-0.5 space-y-0.5 ${!isCollapsed ? 'pl-4' : ''}`}>
+              {/* 1. Material Transaction Engine */}
               <button
-                onClick={() => setActiveTab('inventory')}
+                onClick={() => { setActiveTab('inventory'); setInventorySubTab('material-engine'); }}
                 className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors cursor-pointer text-left ${
-                  activeTab === 'inventory'
+                  activeTab === 'inventory' && inventorySubTab === 'material-engine'
                     ? 'bg-[#243729] text-[#a7f3d0] font-semibold border-l-2 border-emerald-400'
                     : 'hover:bg-[#1e293b] text-neutral-300 hover:text-white'
                 }`}
-                title="Katalog Stok & Mutasi"
+                title="Material Transaction Engine"
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <Warehouse className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'inventory' ? 'text-emerald-400' : 'text-neutral-400'}`} />
-                  {!isCollapsed && <span className="truncate">Katalog Stok SKU</span>}
+                  <Layers className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'inventory' && inventorySubTab === 'material-engine' ? 'text-emerald-400' : 'text-neutral-400'}`} />
+                  {!isCollapsed && <span className="truncate">Material Transaction Engine</span>}
                 </div>
-                {!isCollapsed && lowStockCount > 0 && (
-                  <span className="bg-red-950 text-red-300 text-[10px] font-bold px-1.5 py-0.2 rounded-xs border border-red-800/80 flex items-center gap-0.5">
-                    <AlertTriangle className="w-2.5 h-2.5 inline" />
-                    {lowStockCount}
+                {!isCollapsed && (
+                  <span className="bg-[#141d2b] text-neutral-400 text-[10px] font-mono px-1.5 py-0.2 rounded-xs border border-neutral-700">
+                    {materialTransactions.length}
                   </span>
                 )}
               </button>
 
-              {!isCollapsed && (
-                <button
-                  onClick={() => { setActiveTab('inventory'); onOpenRestock(); }}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 text-neutral-400 hover:text-white hover:bg-[#1e293b] rounded-sm transition-colors cursor-pointer text-left"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-neutral-500 ml-1" />
-                  <span className="truncate">+ Penerimaan Stok (PO)</span>
-                </button>
-              )}
+              {/* 2. Miscellaneous Issue */}
+              <button
+                onClick={() => { setActiveTab('inventory'); setInventorySubTab('misc-issue'); }}
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors cursor-pointer text-left ${
+                  activeTab === 'inventory' && inventorySubTab === 'misc-issue'
+                    ? 'bg-[#3b2d18] text-[#fde68a] font-semibold border-l-2 border-amber-400'
+                    : 'hover:bg-[#1e293b] text-neutral-300 hover:text-white'
+                }`}
+                title="Miscellaneous Issue (Pengeluaran Non-PO)"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <ArrowUpRight className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'inventory' && inventorySubTab === 'misc-issue' ? 'text-amber-400' : 'text-neutral-400'}`} />
+                  {!isCollapsed && <span className="truncate">Miscellaneous Issue</span>}
+                </div>
+                {!isCollapsed && (
+                  <span className="bg-[#141d2b] text-neutral-400 text-[10px] font-mono px-1.5 py-0.2 rounded-xs border border-neutral-700">
+                    {miscIssues.length}
+                  </span>
+                )}
+              </button>
+
+              {/* 3. Miscellaneous Receipt */}
+              <button
+                onClick={() => { setActiveTab('inventory'); setInventorySubTab('misc-receipt'); }}
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-sm transition-colors cursor-pointer text-left ${
+                  activeTab === 'inventory' && inventorySubTab === 'misc-receipt'
+                    ? 'bg-[#1e2d42] text-[#bfdbfe] font-semibold border-l-2 border-blue-400'
+                    : 'hover:bg-[#1e293b] text-neutral-300 hover:text-white'
+                }`}
+                title="Miscellaneous Receipt (Penerimaan Non-PO)"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <ArrowDownRight className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'inventory' && inventorySubTab === 'misc-receipt' ? 'text-blue-400' : 'text-neutral-400'}`} />
+                  {!isCollapsed && <span className="truncate">Miscellaneous Receipt</span>}
+                </div>
+                {!isCollapsed && (
+                  <span className="bg-[#141d2b] text-neutral-400 text-[10px] font-mono px-1.5 py-0.2 rounded-xs border border-neutral-700">
+                    {miscReceipts.length}
+                  </span>
+                )}
+              </button>
             </div>
           )}
         </div>
