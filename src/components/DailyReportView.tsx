@@ -48,7 +48,7 @@ export const DailyReportView: React.FC = () => {
   const totalShiftTarget = workstations.reduce((acc, ws) => acc + ws.targetToday, 0);
 
   const handleCopySummary = () => {
-    const summaryText = `*LAPORAN TUTUP HARIAN OPERASIONAL ERP*
+    const summaryText = `*LAPORAN TUTUP HARIAN OPERASIONAL BFM ERP (PT. BIG FORTUNE MESINDO)*
 Tanggal: ${formattedDate}
 Project Manager: ${projectManager.name}
 Lokasi: ${projectManager.plantLocation}
@@ -160,15 +160,15 @@ Status: Siap Ditutup untuk Verifikasi PM.`;
         {/* Document Header (Letterhead style) */}
         <div className="border-b-2 border-neutral-800 pb-4 flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-neutral-900 text-white flex items-center justify-center font-black text-xl font-mono">
-              ERP
+            <div className="w-12 h-12 bg-neutral-900 text-white flex items-center justify-center font-black text-base font-mono">
+              BFM
             </div>
             <div>
               <div className="text-xl font-black uppercase tracking-tight text-neutral-900 leading-none">
-                PT MITRA TEKNIK REKAYASA
+                PT. BIG FORTUNE MESINDO
               </div>
               <div className="text-xs font-semibold text-neutral-600 uppercase tracking-wider mt-0.5">
-                Divisi Fabrikasi Logam & Perakitan Sistem Elektrikal Industri
+                BFM ERP · Divisi Fabrikasi Logam & Perakitan Mesin Industri
               </div>
               <div className="text-[11px] text-neutral-500 font-mono mt-0.5">
                 {projectManager.plantLocation}
@@ -442,7 +442,7 @@ Status: Siap Ditutup untuk Verifikasi PM.`;
               Project Manager Operasional
             </div>
             <div className="h-16 flex items-end justify-center">
-              <span className="font-mono text-neutral-400 text-xs italic">[ Approved & Closed in MetroERP ]</span>
+              <span className="font-mono text-neutral-400 text-xs italic">[ Approved & Closed in BFM ERP ]</span>
             </div>
             <div className="text-xs font-bold text-neutral-900 underline mt-2">
               {projectManager.name}
@@ -455,7 +455,7 @@ Status: Siap Ditutup untuk Verifikasi PM.`;
 
         {/* Footer print stamp */}
         <div className="text-[10px] text-neutral-400 font-mono pt-4 border-t border-dashed border-neutral-300 flex justify-between">
-          <span>Dicetak otomatis via MetroERP Enterprise v2.4</span>
+          <span>Dicetak otomatis via BFM ERP (PT. BIG FORTUNE MESINDO)</span>
           <span>Waktu Sistem: {currentTime.toLocaleString('id-ID')} WIB</span>
         </div>
       </div>

@@ -344,7 +344,7 @@ export const INITIAL_WORKSTATIONS: Workstation[] = [
 export const PROJECT_MANAGER_PROFILE = {
   name: 'Saputra Hartono, S.T.',
   role: 'Operations & Production Project Manager',
-  division: 'PT MITRA TEKNIK REKAYASA',
+  division: 'PT. BIG FORTUNE MESINDO',
   avatar: '/src/assets/images/avatar_project_manager_1791479816791.jpg',
   plantLocation: 'Plant 2 - Cikarang Industrial Estate, Blok C-14',
 };

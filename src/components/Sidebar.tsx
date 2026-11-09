@@ -93,23 +93,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenNewJob, onOpenRestock })
         isCollapsed ? 'w-16' : 'w-64'
       } bg-[#161e2a] text-[#94a3b8] flex flex-col h-full border-r border-[#263143] select-none transition-all duration-200 shrink-0 no-print z-10`}
     >
-      {/* Brand Header: Logo matching screenshot (e-gecko evo style -> MetroERP evo) */}
+      {/* Brand Header: BFM ERP (PT. BIG FORTUNE MESINDO ERP) */}
       <div className="h-12 border-b border-[#263143] flex items-center justify-between px-3.5 shrink-0">
         {!isCollapsed ? (
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveTab('hub')}>
-            <div className="w-6 h-6 rounded-sm bg-[#10b981] text-white flex items-center justify-center font-black text-xs">
-              M
+          <div 
+            className="flex items-center gap-2 cursor-pointer min-w-0" 
+            onClick={() => setActiveTab('hub')}
+            title="PT. BIG FORTUNE MESINDO ERP"
+          >
+            <div className="w-7 h-7 rounded-sm bg-[#10b981] text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
+              BFM
             </div>
-            <div className="leading-none">
-              <span className="text-sm font-black tracking-tight text-white font-sans">
-                MetroERP
-              </span>
-              <span className="text-[10px] text-emerald-400 font-medium ml-1">evo</span>
+            <div className="leading-none truncate">
+              <div className="flex items-center">
+                <span className="text-sm font-black tracking-tight text-white font-sans">
+                  BFM ERP
+                </span>
+                <span className="text-[10px] text-emerald-400 font-medium ml-1">evo</span>
+              </div>
+              <div className="text-[9px] text-neutral-400 font-medium tracking-tight truncate max-w-[130px] mt-0.5">
+                PT. BIG FORTUNE MESINDO
+              </div>
             </div>
           </div>
         ) : (
-          <div className="mx-auto w-6 h-6 rounded-sm bg-[#10b981] text-white flex items-center justify-center font-black text-xs">
-            M
+          <div 
+            className="mx-auto w-7 h-7 rounded-sm bg-[#10b981] text-white flex items-center justify-center font-black text-xs cursor-pointer shadow-xs"
+            onClick={() => setActiveTab('hub')}
+            title="BFM ERP - PT. BIG FORTUNE MESINDO"
+          >
+            BFM
           </div>
         )}
 

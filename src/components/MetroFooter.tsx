@@ -12,7 +12,7 @@ export const MetroFooter: React.FC = () => {
         <div className="space-y-1">
           <div className="text-neutral-200 font-bold uppercase tracking-wider flex items-center gap-1.5">
             <span className="w-2 h-2 bg-[#107c41] inline-block" />
-            PT Mitra Teknik Rekayasa · MetroERP
+            PT. Big Fortune Mesindo · BFM ERP
           </div>
           <div className="text-neutral-400 text-[11px]">
             {projectManager.plantLocation}
@@ -60,7 +60,7 @@ export const MetroFooter: React.FC = () => {
         {/* Right: Operational Signoff */}
         <div className="text-right text-[11px] text-neutral-400">
           <div>Supervisor Operasional: {projectManager.name}</div>
-          <div className="text-neutral-500 font-mono">Metro UI Industrial Standard</div>
+          <div className="text-neutral-500 font-mono">BFM ERP Industrial Standard</div>
         </div>
       </div>
     </footer>

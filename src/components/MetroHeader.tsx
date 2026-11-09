@@ -48,10 +48,10 @@ export const MetroHeader: React.FC<MetroHeaderProps> = ({ onOpenScanner }) => {
           </div>
           <div>
             <div className="text-xl font-extrabold tracking-tight leading-none uppercase font-sans">
-              METRO·ERP
+              BFM·ERP
             </div>
             <div className="text-[11px] font-medium text-emerald-100 tracking-wide">
-              SISTEM PELACAKAN SPK & INVENTARIS REAL-TIME
+              PT. BIG FORTUNE MESINDO ERP · SISTEM PELACAKAN SPK & INVENTARIS REAL-TIME
             </div>
           </div>
         </div>
